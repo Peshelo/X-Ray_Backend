@@ -70,11 +70,17 @@ public class PatientController {
         }
 
 
-    @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/add-fingerprint",consumes = MULTIPART_FORM_DATA_VALUE)
     @Operation(description = "Adds a finger print")
     public ResponseEntity<?> saveImage(@RequestParam("files") MultipartFile file, @RequestParam("userId") Long bioId) throws IOException {
         byte[] primaryFinger = file.getBytes();
         return ResponseEntity.ok(patientService.addFingerPrint(primaryFinger,bioId));
+    }
+
+    @PostMapping(path = "/get-by-fingerprint", consumes = MULTIPART_FORM_DATA_VALUE)
+    @Operation(description = "Returns user details by primary finger")
+    public ResponseEntity<?> getByPrimaryFinger(@RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(patientService.getByPrimaryFinger(file));
     }
 
     @PostMapping("/encoded-file")

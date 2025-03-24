@@ -1,24 +1,24 @@
 package org.example.xray_document_managment_system.Patient;
 
+import com.machinezoo.sourceafis.FingerprintMatcher;
+import com.machinezoo.sourceafis.FingerprintTemplate;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.xray_document_managment_system.Patient.userbiometrics.BioMetricData;
 import org.example.xray_document_managment_system.Patient.userbiometrics.UserBiometrics;
 import org.example.xray_document_managment_system.Patient.userbiometrics.UserBiometricsRepository;
-import org.example.xray_document_managment_system.Patient.userbiometrics.UserBiometricsService;
 import org.example.xray_document_managment_system.Security.Models.Role;
-import org.hibernate.query.Page;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.awt.print.Pageable;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -74,55 +74,49 @@ public class PatientService {
     }
 
     public Patient addFingerPrint(byte[] primaryFinger, Long patientId) {
-//            Patient patient = patientRepository.findById(patientId).get();
-//
-//            UserBiometrics userBiometrics = UserBiometrics.builder()
-//                    .primaryFingerprint(primaryFinger)
-//                    .build();
-//
-//            patient.setUserBiometrics(userBiometrics);
-//            Patient savePatient = patientRepository.save(patient);
-//            userBiometricsRepository.save(userBiometrics);
-//            return savePatient;
-        return null;
+            Patient patient = patientRepository.findById(patientId).get();
+
+            UserBiometrics userBiometrics = UserBiometrics.builder()
+                    .primaryFingerprint(primaryFinger)
+                    .userId(patientId)
+                    .build();
+            if(patient.getUserBiometrics().getPrimaryFingerprint() != null){
+                throw new RuntimeException("User already has fingerprint");
+            }
+            patient.setUserBiometrics(userBiometrics);
+        userBiometricsRepository.save(userBiometrics);
+        return patientRepository.save(patient);
         }
 
     public Patient getByEncodedImage(BioMetricData bioMetricData) {
-//        double threshold = 40;
-//        BufferedImage decodedImage=null;
-//        ByteArrayOutputStream baos= null;
-//        try {
-//            decodedImage= decodeBase64Bmp(bioMetricData.getData());
-//            baos = new ByteArrayOutputStream();
-//            ImageIO.write(decodedImage, "jpg", baos);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        byte[] bytes = baos.toByteArray();
-//        List<UserDetailsDto> resultList = repository.findAll().stream()
-//                .filter(print -> {
-//                    FingerprintTemplate probe = new FingerprintTemplate().dpi(500).create(bytes);
-//                    FingerprintTemplate candidate = new FingerprintTemplate().dpi(500)
-//                            .create(print.getPrimaryFingerprint());
-//                    double score = new FingerprintMatcher().index(probe).match(candidate);
-//                    return score >= threshold;
-//                })
-//                .map(print -> {
-//                    var userDetails = userDetailsRepository.findById(print.getUserId());
-//                    UserDetailsDto userDetailsDto = new UserDetailsDto();
-//                    userDetails.ifPresent(user -> {
-//                        userDetailsDto.setId(user.getId());
-//                        userDetailsDto.setName(user.getName());
-//                        userDetailsDto.setSurname(user.getSurname());
-//                        userDetailsDto.setStatus(user.getStatus());
-//                        userDetailsDto.setNationalId(user.getNatId());
-//                    });
-//                    return userDetailsDto;
-//                })
-//                .collect(Collectors.toList());
+        double threshold = 40;
+        BufferedImage decodedImage=null;
+        ByteArrayOutputStream baos= null;
+        try {
+            decodedImage= decodeBase64Bmp(bioMetricData.getData());
+            baos = new ByteArrayOutputStream();
+            ImageIO.write(decodedImage, "jpg", baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        return null;
+        byte[] bytes = baos.toByteArray();
+       List<Optional<Patient>> resultList = userBiometricsRepository.findAll().stream()
+                .filter(print -> {
+                    FingerprintTemplate probe = new FingerprintTemplate().dpi(500).create(bytes);
+                    FingerprintTemplate candidate = new FingerprintTemplate().dpi(500)
+                            .create(print.getPrimaryFingerprint());
+                    double score = new FingerprintMatcher().index(probe).match(candidate);
+                    return score >= threshold;
+                })
+                .map(print -> {
+//                    var userDetails = patientRepository.findById(print.getUserId());
+//
+                    return patientRepository.findById(print.getId());
+                })
+                .collect(Collectors.toList());
+
+        return (Patient) resultList;
     }
 
     public Patient getByEmail(String email) {
@@ -133,5 +127,31 @@ public class PatientService {
         return patient.get();
     }
 
+
+    public static BufferedImage decodeBase64Bmp(String base64String) throws IOException {
+        byte[] decodedBytes = Base64.getDecoder().decode(base64String);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedBytes);
+        BufferedImage image = ImageIO.read(inputStream);
+
+        return image;
+    }
+
+    public Optional<Patient> getByPrimaryFinger(MultipartFile file) throws IOException {
+        double threshold = 40;
+        byte[] encoded = file.getBytes();
+
+        List<Optional<Patient>> resultList = userBiometricsRepository.findAll().stream()
+                .filter(print -> {
+                    FingerprintTemplate probe = new FingerprintTemplate().dpi(500).create(encoded);
+                    FingerprintTemplate candidate = new FingerprintTemplate().dpi(500)
+                            .create(print.getPrimaryFingerprint());
+                    double score = new FingerprintMatcher().index(probe).match(candidate);
+                    return score >= threshold;
+                })
+                .map(print -> patientRepository.findById(print.getUserId()))
+                .collect(Collectors.toList());
+
+        return resultList.get(0);
+    }
 
 }

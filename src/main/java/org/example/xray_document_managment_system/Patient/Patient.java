@@ -30,8 +30,8 @@ public class Patient extends Users {
     private String fingerprintData;
     private Languages language;
 
-//    @OneToOne
-//    private UserBiometrics userBiometrics;
+    @OneToOne
+    private UserBiometrics userBiometrics;
 
     @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL,orphanRemoval = true)
