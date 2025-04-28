@@ -83,8 +83,9 @@ public class PatientService {
             if(patient.getUserBiometrics().getPrimaryFingerprint() != null){
                 throw new RuntimeException("User already has fingerprint");
             }
-            patient.setUserBiometrics(userBiometrics);
-        userBiometricsRepository.save(userBiometrics);
+
+       UserBiometrics savedUserBiometrics  = userBiometricsRepository.save(userBiometrics);
+        patient.setUserBiometrics(savedUserBiometrics);
         return patientRepository.save(patient);
         }
 

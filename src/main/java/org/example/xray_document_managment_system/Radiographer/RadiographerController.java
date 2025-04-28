@@ -59,7 +59,7 @@ public class RadiographerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         radiographerService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
