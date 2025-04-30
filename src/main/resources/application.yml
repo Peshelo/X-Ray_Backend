@@ -16,9 +16,9 @@ spring:
     multipart:
       max-file-size: 5GB
       max-request-size: 5GB
+  server:
     tomcat:
       max-http-post-size: 5368709120 # 5GB in bytes
-
 rsa:
   private-key: "classpath:certs/private.pem"
   public-key: "classpath:certs/public.pem"

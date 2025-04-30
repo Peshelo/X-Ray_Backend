@@ -32,9 +32,6 @@ public class Patient extends Users {
     private Languages language;
 
 
-    @ManyToOne
-    @Column(nullable = true)
-    private Hospital hospital;
 
     @OneToOne
     private UserBiometrics userBiometrics;
