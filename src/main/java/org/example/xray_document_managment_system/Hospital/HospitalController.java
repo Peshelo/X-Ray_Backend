@@ -36,7 +36,7 @@ public class HospitalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Hospital> getById(Long id) {
+    public ResponseEntity<Hospital> getById(@PathVariable  Long id) {
         Hospital hospital = hospitalService.getById(id);
         return ResponseEntity.ok(hospital);
     }
@@ -99,13 +99,13 @@ public class HospitalController {
     }
 
     @PostMapping
-    public ResponseEntity<Hospital> create(Hospital hospital) {
+    public ResponseEntity<Hospital> create(@RequestBody Hospital hospital) {
         Hospital createdHospital = hospitalService.create(hospital);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHospital);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Hospital> update(Long id, Hospital hospital) {
+    public ResponseEntity<Hospital> update(@PathVariable Long id,@RequestBody Hospital hospital) {
         Hospital updatedHospital = hospitalService.update(id, hospital);
         return ResponseEntity.ok(updatedHospital);
     }

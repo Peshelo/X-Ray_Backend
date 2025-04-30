@@ -25,25 +25,25 @@ public class AdminController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Admin> getById(Long id) {
+    public ResponseEntity<Admin> getById(@PathVariable  Long id) {
         Admin admin = adminService.getById(id);
         return ResponseEntity.ok(admin);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(Long id) {
+    public ResponseEntity<?> delete(@PathVariable  Long id) {
         adminService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping
-    public ResponseEntity<Admin> create(Admin admin) {
+    public ResponseEntity<Admin> create(@RequestBody Admin admin) {
         Admin createdAdmin = adminService.create(admin);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAdmin);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Admin> update(Long id, Admin admin) {
+    public ResponseEntity<Admin> update(@PathVariable Long id,@RequestBody Admin admin) {
         Admin updatedAdmin = adminService.update(id, admin);
         return ResponseEntity.ok(updatedAdmin);
     }

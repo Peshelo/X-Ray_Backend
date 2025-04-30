@@ -62,6 +62,6 @@ public class RadiographController {
         String radiographerEmail = principal.getName();
         Radiograph radiograph = radiographService.create(radiographers,id,radiographerEmail);
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(radiograph);
     }
 }

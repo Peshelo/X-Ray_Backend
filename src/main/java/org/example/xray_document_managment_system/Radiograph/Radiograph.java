@@ -26,6 +26,7 @@ public class Radiograph {
 
     private String name;
 
+    @Column(name = "image_url")
     private String ImageUrl;
 
     private String description;

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.example.xray_document_managment_system.Hospital.Hospital;
 import org.example.xray_document_managment_system.Patient.userbiometrics.UserBiometrics;
 import org.example.xray_document_managment_system.Radiograph.Radiograph;
 import org.example.xray_document_managment_system.Radiographer.Radiographer;
@@ -29,6 +30,11 @@ public class Patient extends Users {
     private String nationalIdUrl;
     private String fingerprintData;
     private Languages language;
+
+
+    @ManyToOne
+    @Column(nullable = true)
+    private Hospital hospital;
 
     @OneToOne
     private UserBiometrics userBiometrics;

@@ -55,6 +55,8 @@ public class SecurityConfig {
             "/ swagger-resources",
             "/swagger-ui.html",
             "/auth/**",
+            "/admin",
+            "/hospital/**"
     };
 
 

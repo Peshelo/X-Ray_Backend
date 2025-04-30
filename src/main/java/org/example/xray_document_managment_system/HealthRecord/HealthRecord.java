@@ -30,6 +30,6 @@ public class HealthRecord {
 
     private String physicianNotes;
 
-    @OneToMany
-    private List<Radiograph> radiographs;
+//    @OneToMany
+//    private List<Radiograph> radiographs;
 }

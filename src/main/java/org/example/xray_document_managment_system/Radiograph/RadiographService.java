@@ -37,6 +37,9 @@ public class RadiographService {
 
     @Transactional
     public Radiograph create(Radiograph radiograph, Long patientId, String radiographerEmail) {
+        // Verify no duplicate ImageUrl
+
+
         Radiographer radiographer = radiographerRepository.findByEmail(radiographerEmail)
                 .orElseThrow(() -> new RuntimeException("Radiographer not found"));
 
@@ -45,9 +48,6 @@ public class RadiographService {
 
         radiograph.setRadiographer(radiographer);
         radiograph.setPatient(patient);
-
-        // Optionally, set Physician if applicable
-        // radiograph.setPhysician(physician);
 
         return radiographRepository.save(radiograph);
     }
