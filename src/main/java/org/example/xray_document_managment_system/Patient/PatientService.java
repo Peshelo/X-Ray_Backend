@@ -74,20 +74,24 @@ public class PatientService {
     }
 
     public Patient addFingerPrint(byte[] primaryFinger, Long patientId) {
-            Patient patient = patientRepository.findById(patientId).get();
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient not found with id: " + patientId));
 
-            UserBiometrics userBiometrics = UserBiometrics.builder()
-                    .primaryFingerprint(primaryFinger)
-                    .userId(patientId)
-                    .build();
-            if(patient.getUserBiometrics().getPrimaryFingerprint() != null){
-                throw new RuntimeException("User already has fingerprint");
-            }
+        // Check if biometrics exists, if not create new one
+        UserBiometrics userBiometrics = patient.getUserBiometrics();
+        if (userBiometrics == null) {
+            userBiometrics = new UserBiometrics();
+            userBiometrics.setUserId(patientId);
+        } else if (userBiometrics.getPrimaryFingerprint() != null) {
+            throw new RuntimeException("User already has fingerprint");
+        }
 
-       UserBiometrics savedUserBiometrics  = userBiometricsRepository.save(userBiometrics);
+        userBiometrics.setPrimaryFingerprint(primaryFinger);
+        UserBiometrics savedUserBiometrics = userBiometricsRepository.save(userBiometrics);
+
         patient.setUserBiometrics(savedUserBiometrics);
         return patientRepository.save(patient);
-        }
+    }
 
     public Patient getByEncodedImage(BioMetricData bioMetricData) {
         double threshold = 40;
